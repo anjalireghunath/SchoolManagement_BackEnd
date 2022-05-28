@@ -5,6 +5,11 @@ const Mongoose=require("mongoose")
 var app=Express()
 app.use(Bodyparser.urlencoded({extended:true}))
 app.use(Bodyparser.json())
+app.use((req, res, next) => { 
+    res.setHeader("Access-Control-Allow-Origin", "*");  
+    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept"   ); 
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS"   ); 
+    next(); });
 
 var studentModel=Mongoose.model("students",
 new Mongoose.Schema({
@@ -72,12 +77,90 @@ app.post("/api/addfaculty",(req,res)=>{
 })
 
 app.get("/api/studentview",(req,res)=>{
-    res.send("view all students")
+    studentModel.find(
+        (error,data)=>{
+            if(error)
+            {
+                res.send({"status":"success"})
+            }
+            else
+            {
+                res.send(data)
+            }
+        }
+    )
+   
+})
+
+app.post("/api/studsearch",(req,res)=>{
+    var getAdmno=req.body
+    studentModel.find(getAdmno,(error,data)=>{
+        if(error)
+        {
+            res.send({"status":"error"})
+        }
+        else{
+            res.send(data)
+        }
+    })
+})
+
+app.post("/api/studdelete",(req,res)=>{
+    var getId=req.body
+    studentModel.findByIdAndRemove(getId,(error,data)=>{
+        if(error)
+        {
+            res.send({"status":"error"})
+        }
+        else
+        {
+            res.send({"status":"success"})
+        }
+    })
 })
 
 app.get("/api/facultiesview",(req,res)=>{
-    res.send("view all faculties")
+    facultyModel.find(
+        (error,data)=>{
+            if(error)
+            {
+                res.send({"status":"error"})
+            }
+            else
+            {
+                res.send(data)
+            }
+        }
+    )
 })
+
+app.post("/api/facsearch",(req,res)=>{
+    var getName=req.body
+    facultyModel.find(getName,(error,data)=>{
+        if(error)
+        {
+            res.send({"status":"error"})
+        }
+        else
+        {
+            res.send(data)
+        }
+    })
+})
+
+app.post("/api/facdelete",(req,res)=>{
+    var getId=req.body
+    facultyModel.findByIdAndRemove(getId,(error,data)=>{
+        if(error)
+        {
+            res.send({"status":"error"})
+        }
+        else{
+            res.send({"status":"success"})
+        }
+    })
+})
+
 app.listen(4008,()=>{
     console.log("server running")
 })
